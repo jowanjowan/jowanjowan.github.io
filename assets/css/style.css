@@ -141,6 +141,14 @@ h6 {
 	letter-spacing: -.03em;
 }
 
+.block-title h4 {
+	margin: 0;
+	color: var(--thm-black);
+	font-family: var(--special-font-bold);
+	font-size: 130px;
+	line-height: 75px;
+	letter-spacing: -.03em;
+}
 .block-title p {
 	margin: 0;
 	color: var(--thm-base);
