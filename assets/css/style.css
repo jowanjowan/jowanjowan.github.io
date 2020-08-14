@@ -1262,9 +1262,23 @@ h6 {
 	letter-spacing: -0.03em;
 }
 
+.banner-one__content h4 {
+	margin: 0;
+	color: #fff;
+	font-size: 80px;
+	line-height: 95px;
+	letter-spacing: -0.03em;
+}
+
 .banner-one__content h3 span {
 	font-family: var(--special-font-light);
 	font-size: 80px;
+}
+
+.banner-one__content h4 span {
+	font-family: var(--special-font-light);
+	font-size: 80px;
+	align-content: center
 }
 
 .banner-one__content p {
