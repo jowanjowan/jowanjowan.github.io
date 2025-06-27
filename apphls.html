@@ -10,32 +10,38 @@
       font-family: Arial, sans-serif;
       background-color: #121212;
       color: #fff;
-      text-align: center;
       margin: 0;
-      padding: 20px;
+      padding: 0;
     }
 
     h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
+      font-size: 1.8rem;
+      margin: 20px 0 10px;
+      text-align: center;
     }
 
     .video-container {
-      width: 100%;
-      max-width: 960px;
-      margin: 0 auto 30px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background-color: #121212;
+      padding: 10px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.6);
     }
 
     #twitch-embed {
       width: 100%;
-      height: 540px;
+      height: 360px;
+      max-height: 60vh;
+      max-width: 960px;
+      margin: 0 auto;
     }
 
     .stream-list {
       list-style: none;
-      padding: 0;
+      padding: 0 20px 60px;
       max-width: 600px;
-      margin: 0 auto;
+      margin: 30px auto 0;
     }
 
     .stream-list li {
@@ -46,18 +52,27 @@
       cursor: pointer;
       transition: background-color 0.3s;
       font-size: 1.2rem;
+      text-align: center;
     }
 
     .stream-list li:hover {
       background-color: #333;
     }
+
+    @media (max-width: 768px) {
+      #twitch-embed {
+        height: 240px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <h1>📡 Live Twitch Streams</h1>
-
   <div class="video-container">
+    <h1>📡 Live Twitch Streams</h1>
     <div id="twitch-embed"></div>
   </div>
 
@@ -68,7 +83,7 @@
   </ul>
 
   <script>
-    const domain = "jowanjowan.github.io"; // Must match your GitHub Pages domain (no https, no path)
+    const domain = "jowanjowan.github.io";
     let player;
 
     function createPlayer(channel) {
@@ -76,7 +91,7 @@
         channel: channel,
         parent: [domain],
         width: "100%",
-        height: 540,
+        height: 360,
         autoplay: true,
         muted: false
       });
