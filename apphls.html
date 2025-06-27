@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-  <title>Twitch Custom Controls</title>
+  <title>Live Twitch Streams</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -41,28 +41,6 @@
       border: none;
     }
 
-    .custom-controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      padding: 10px;
-      background-color: #1e1e1e;
-    }
-
-    .custom-controls button {
-      background-color: #333;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      font-size: 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .custom-controls button:hover {
-      background-color: #555;
-    }
-
     .stream-list {
       list-style: none;
       padding: 20px;
@@ -92,11 +70,6 @@
     <div class="aspect-ratio-box">
       <div id="twitch-embed"></div>
     </div>
-    <div class="custom-controls">
-      <button onclick="playStream()">▶️ Play</button>
-      <button onclick="pauseStream()">⏸️ Pause</button>
-      <button onclick="unmuteStream()">🔊 Unmute</button>
-    </div>
   </div>
 
   <ul class="stream-list">
@@ -109,55 +82,36 @@
   </ul>
 
   <script>
-    const domain = "jowanjowan.github.io"; // your domain or hosting domain
+    const domain = "jowanjowan.github.io";
     let player;
-    let isPlayerReady = false;
 
     function createPlayer(channel) {
       player = new Twitch.Player("twitch-embed", {
         channel: channel,
         parent: [domain],
-        autoplay: false,
-        muted: true, // Start muted to avoid autoplay block
+        autoplay: true,
+        muted: true,
         controls: false,
         layout: "video"
       });
 
-      player.addEventListener(Twitch.Player.READY, () => {
-        isPlayerReady = true;
-      });
+      // Save last channel
+      localStorage.setItem("lastChannel", channel);
     }
 
     function changeStream(channel) {
       if (player) {
         player.setChannel(channel);
-        player.setMuted(true);
+        localStorage.setItem("lastChannel", channel);
       } else {
         createPlayer(channel);
       }
     }
 
-    function playStream() {
-      if (player && isPlayerReady) {
-        player.play();
-      }
-    }
-
-    function pauseStream() {
-      if (player && isPlayerReady) {
-        player.pause();
-      }
-    }
-
-    function unmuteStream() {
-      if (player && isPlayerReady) {
-        player.setMuted(false);
-        player.play(); // ensure it plays after unmuting
-      }
-    }
-
+    // On page load
     window.onload = () => {
-      createPlayer("mainconnect");
+      const lastChannel = localStorage.getItem("lastChannel") || "mainconnect";
+      createPlayer(lastChannel);
     };
   </script>
 
