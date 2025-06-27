@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .video-container {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto 30px;
+    }
+
+    #twitch-embed {
+      width: 100%;
+      height: 540px;
+    }
+
+    .stream-list {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .stream-list li {
+      background-color: #1e1e1e;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1.2rem;
+    }
+
+    .stream-list li:hover {
+      background-color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="video-container">
+    <div id="twitch-embed"></div>
+  </div>
+
+  <ul class="stream-list">
+    <li onclick="changeStream('mamlakatv')">📺 MamlakaTV</li>
+    <li onclick="changeStream('mainconnect')">📺 MainConnect</li>
+    <li onclick="changeStream('anotherchannel')">📺 Another Channel</li>
+  </ul>
+
+  <script>
+    const domain = "ff46-41-72-199-207.ngrok-free.app";
+    let player;
+
+    function createPlayer(channel) {
+      player = new Twitch.Player("twitch-embed", {
+        channel: channel,
+        parent: [domain],
+        width: "100%",
+        height: 540,
+        autoplay: true,
+        muted: false
+      });
+
+      player.addEventListener(Twitch.Player.READY, () => {
+        player.setMuted(false); // ensure it's unmuted on load
+      });
+    }
+
+    function changeStream(channel) {
+      if (player) {
+        player.setChannel(channel);
+        player.setMuted(false);
+      } else {
+        createPlayer(channel);
+      }
+    }
+
+    // Initialize with first channel
+    createPlayer("mainconnect");
+  </script>
+
+</body>
+</html>
