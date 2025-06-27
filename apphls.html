@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-  
+  <title>Twitch Multi-Stream</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -72,7 +72,7 @@
 <body>
 
   <div class="video-container">
-   
+    <h1>📡 Live Twitch Streams</h1>
     <div id="twitch-embed"></div>
   </div>
 
@@ -80,6 +80,13 @@
     <li onclick="changeStream('mamlakatv')">📺 MamlakaTV</li>
     <li onclick="changeStream('mainconnect')">📺 MainConnect</li>
     <li onclick="changeStream('anotherchannel')">📺 Another Channel</li>
+    <li onclick="changeStream('shroud')">🎮 Shroud</li>
+    <li onclick="changeStream('xqc')">🎮 xQc</li>
+    <li onclick="changeStream('pokimane')">🎮 Pokimane</li>
+    <li onclick="changeStream('summit1g')">🎮 Summit1G</li>
+    <li onclick="changeStream('ludwig')">🎤 Ludwig</li>
+    <li onclick="changeStream('ninja')">🎮 Ninja</li>
+    <li onclick="changeStream('esl_csgo')">🎯 ESL_CSGO</li>
   </ul>
 
   <script>
@@ -110,7 +117,7 @@
       }
     }
 
-    // Load the initial stream
+    // Load default stream
     createPlayer("mainconnect");
   </script>
 
