@@ -4,34 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-  <title>Twitch Multi-Stream</title>
+  <title>Twitch with Custom Controls</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
       font-family: Arial, sans-serif;
       background-color: #121212;
       color: #fff;
+      margin: 0;
     }
 
     .video-container {
       position: sticky;
       top: 0;
       z-index: 999;
-      background-color: #121212;
+      background-color: #000;
     }
 
     .aspect-ratio-box {
       position: relative;
       width: 100%;
-      max-width: 100%;
-      height: 300px; /* Adjust the height here as needed */
+      height: 300px;
       background-color: black;
-      overflow: hidden;
     }
 
     #twitch-embed {
@@ -48,11 +41,33 @@
       border: none;
     }
 
+    .custom-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      padding: 10px;
+      background-color: #1e1e1e;
+    }
+
+    .custom-controls button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .custom-controls button:hover {
+      background-color: #555;
+    }
+
     .stream-list {
       list-style: none;
-      padding: 0 20px 60px;
+      padding: 20px;
       max-width: 600px;
-      margin: 20px auto 0;
+      margin: 0 auto;
     }
 
     .stream-list li {
@@ -77,13 +92,18 @@
     <div class="aspect-ratio-box">
       <div id="twitch-embed"></div>
     </div>
+    <div class="custom-controls">
+      <button onclick="playStream()">▶️ Play</button>
+      <button onclick="pauseStream()">⏸️ Pause</button>
+      <button onclick="unmuteStream()">🔊 Unmute</button>
+    </div>
   </div>
 
   <ul class="stream-list">
-    <li onclick="changeStream('mainconnect')">📺 MainConnect</li>
     <li onclick="changeStream('mamlakatv')">📺 MamlakaTV</li>
-    <li onclick="changeStream('katelevisionke')">📺 KA Tv</li>
-    <li onclick="changeStream('pdtelevision')">🎮 pdtelevision</li>
+    <li onclick="changeStream('mainconnect')">📺 MainConnect</li>
+    <li onclick="changeStream('anotherchannel')">📺 Another Channel</li>
+    <li onclick="changeStream('shroud')">🎮 Shroud</li>
   </ul>
 
   <script>
@@ -114,7 +134,19 @@
       }
     }
 
-    // Load default stream
+    function playStream() {
+      if (player) player.play();
+    }
+
+    function pauseStream() {
+      if (player) player.pause();
+    }
+
+    function unmuteStream() {
+      if (player) player.setMuted(false);
+    }
+
+    // Initialize
     createPlayer("mainconnect");
   </script>
 
