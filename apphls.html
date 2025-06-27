@@ -90,11 +90,13 @@
         channel: channel,
         parent: [domain],
         autoplay: true,
-        muted: false
+        muted: false,
+        controls: false,
+        layout: "video" // removes overlays
       });
 
       player.addEventListener(Twitch.Player.READY, () => {
-        player.setMuted(false);
+        player.setMuted(false); // attempt to unmute after ready
       });
     }
 
@@ -107,7 +109,7 @@
       }
     }
 
-    // Load default stream
+    // Initialize with default stream
     createPlayer("mainconnect");
   </script>
 
