@@ -128,7 +128,7 @@
     const domain = "jowanjowan.github.io";
     let player;
     let isPlayerReady = false;
-    let currentMode = "twitch"; // "twitch" or "hls"
+    let currentMode = "twitch";
     const hlsPlayer = document.getElementById("hls-player");
     let hlsInstance;
 
@@ -164,17 +164,21 @@
         hlsInstance.destroy();
         hlsInstance = null;
       }
-      hlsPlayer.pause();
-      hlsPlayer.removeAttribute("src");
-      hlsPlayer.load();
     }
 
     function changeStream(channel) {
       currentMode = "twitch";
 
+      // Clean up HLS
       destroyHLSPlayer();
-      hlsPlayer.style.display = "none";
+      if (hlsPlayer) {
+        hlsPlayer.pause();
+        hlsPlayer.removeAttribute("src");
+        hlsPlayer.load();
+        hlsPlayer.style.display = "none"; // ✅ Fully hide HLS player
+      }
 
+      // Show Twitch
       document.getElementById("twitch-embed").style.display = "block";
 
       if (player && isPlayerReady) {
@@ -183,7 +187,6 @@
         player.play();
       } else {
         createPlayer(channel);
-
         const interval = setInterval(() => {
           if (player && isPlayerReady) {
             player.setMuted(false);
@@ -197,6 +200,7 @@
     function changeToHLS(hlsUrl) {
       currentMode = "hls";
 
+      // Clean up Twitch
       destroyTwitchPlayer();
       document.getElementById("twitch-embed").style.display = "none";
 
@@ -207,11 +211,13 @@
         hlsInstance.loadSource(hlsUrl);
         hlsInstance.attachMedia(hlsPlayer);
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+          hlsPlayer.muted = false;
           hlsPlayer.play();
         });
       } else if (hlsPlayer.canPlayType('application/vnd.apple.mpegurl')) {
         hlsPlayer.src = hlsUrl;
         hlsPlayer.addEventListener('loadedmetadata', () => {
+          hlsPlayer.muted = false;
           hlsPlayer.play();
         });
       }
