@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-  <title>Twitch with Custom Controls</title>
+  <title>Twitch Custom Controls</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -104,24 +104,22 @@
     <li onclick="changeStream('mamlakatv')">📺 MamlakaTV</li>
     <li onclick="changeStream('katelevisionke')">📺 KA Tv</li>
     <li onclick="changeStream('pdtelevision')">🎮 pdtelevision</li>
+    <li onclick="changeStream('shroud')">🎮 Shroud</li>
+    <li onclick="changeStream('xqc')">🎮 xQc</li>
   </ul>
 
   <script>
-    const domain = "jowanjowan.github.io";
+    const domain = "jowanjowan.github.io"; // update this if self-hosting elsewhere
     let player;
 
     function createPlayer(channel) {
       player = new Twitch.Player("twitch-embed", {
         channel: channel,
         parent: [domain],
-        autoplay: true,
+        autoplay: false, // autoplay off to allow unmuted audio
         muted: false,
         controls: false,
         layout: "video"
-      });
-
-      player.addEventListener(Twitch.Player.READY, () => {
-        player.setMuted(false);
       });
     }
 
@@ -143,11 +141,15 @@
     }
 
     function unmuteStream() {
-      if (player) player.setMuted(false);
+      if (player) {
+        player.setMuted(false);
+        player.play(); // ensure it's playing
+      }
     }
 
-    // Initialize
-    createPlayer("mainconnect");
+    window.onload = () => {
+      createPlayer("mainconnect"); // default channel
+    };
   </script>
 
 </body>
