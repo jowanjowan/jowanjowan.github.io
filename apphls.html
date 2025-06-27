@@ -109,46 +109,55 @@
   </ul>
 
   <script>
-    const domain = "jowanjowan.github.io"; // update this if self-hosting elsewhere
+    const domain = "jowanjowan.github.io"; // your domain or hosting domain
     let player;
+    let isPlayerReady = false;
 
     function createPlayer(channel) {
       player = new Twitch.Player("twitch-embed", {
         channel: channel,
         parent: [domain],
-        autoplay: false, // autoplay off to allow unmuted audio
-        muted: false,
+        autoplay: false,
+        muted: true, // Start muted to avoid autoplay block
         controls: false,
         layout: "video"
+      });
+
+      player.addEventListener(Twitch.Player.READY, () => {
+        isPlayerReady = true;
       });
     }
 
     function changeStream(channel) {
       if (player) {
         player.setChannel(channel);
-        player.setMuted(false);
+        player.setMuted(true);
       } else {
         createPlayer(channel);
       }
     }
 
     function playStream() {
-      if (player) player.play();
+      if (player && isPlayerReady) {
+        player.play();
+      }
     }
 
     function pauseStream() {
-      if (player) player.pause();
+      if (player && isPlayerReady) {
+        player.pause();
+      }
     }
 
     function unmuteStream() {
-      if (player) {
+      if (player && isPlayerReady) {
         player.setMuted(false);
-        player.play(); // ensure it's playing
+        player.play(); // ensure it plays after unmuting
       }
     }
 
     window.onload = () => {
-      createPlayer("mainconnect"); // default channel
+      createPlayer("mainconnect");
     };
   </script>
 
