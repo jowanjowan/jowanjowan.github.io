@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+  <title>Twitch Multi-Stream</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -54,6 +55,8 @@
 </head>
 <body>
 
+  <h1>📡 Live Twitch Streams</h1>
+
   <div class="video-container">
     <div id="twitch-embed"></div>
   </div>
@@ -65,7 +68,7 @@
   </ul>
 
   <script>
-    const domain = "jowanjowan.github.io";
+    const domain = "jowanjowan.github.io"; // Must match your GitHub Pages domain (no https, no path)
     let player;
 
     function createPlayer(channel) {
@@ -79,7 +82,7 @@
       });
 
       player.addEventListener(Twitch.Player.READY, () => {
-        player.setMuted(false); // ensure it's unmuted on load
+        player.setMuted(false);
       });
     }
 
@@ -92,7 +95,7 @@
       }
     }
 
-    // Initialize with first channel
+    // Load the initial stream
     createPlayer("mainconnect");
   </script>
 
