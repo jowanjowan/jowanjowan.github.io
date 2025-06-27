@@ -6,12 +6,16 @@
   <script src="https://player.twitch.tv/js/embed/v1.js"></script>
   <title>Twitch Multi-Stream</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: #121212;
       color: #fff;
-      margin: 0;
-      padding: 0;
     }
 
     .video-container {
@@ -27,14 +31,16 @@
       max-width: 960px;
       margin: 0 auto;
       padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background-color: black;
     }
 
-    #twitch-embed {
-      position: absolute;
+    #twitch-embed iframe {
+      position: absolute !important;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100% !important;
+      height: 100% !important;
+      border: none;
     }
 
     .stream-list {
@@ -92,11 +98,11 @@
         autoplay: true,
         muted: false,
         controls: false,
-        layout: "video" // removes overlays
+        layout: "video"
       });
 
       player.addEventListener(Twitch.Player.READY, () => {
-        player.setMuted(false); // attempt to unmute after ready
+        player.setMuted(false);
       });
     }
 
@@ -109,7 +115,7 @@
       }
     }
 
-    // Initialize with default stream
+    // Load default stream
     createPlayer("mainconnect");
   </script>
 
