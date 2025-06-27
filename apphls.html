@@ -117,6 +117,8 @@
     <li onclick="changeStream('mamlakatv')">📺 MamlakaTV</li>
     <li onclick="changeStream('katelevisionke')">📺 KA Tv</li>
     <li onclick="changeStream('pdtelevision')">🎮 pdtelevision</li>
+    <li onclick="changeStream('shroud')">🎮 Shroud</li>
+    <li onclick="changeStream('xqc')">🎮 xQc</li>
 
     <!-- HLS Stream Example -->
     <li onclick="changeToHLS('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">📡 HLS Test Stream</li>
@@ -142,8 +144,8 @@
 
       player.addEventListener(Twitch.Player.READY, () => {
         isPlayerReady = true;
-        player.setMuted(false); // Auto-unmute
-        player.play();          // Auto-play
+        player.setMuted(false);
+        player.play();
       });
     }
 
@@ -162,21 +164,18 @@
         hlsInstance.destroy();
         hlsInstance = null;
       }
-    }
-
-    function changeStream(channel) {
-      currentMode = "twitch";
-
-      // Clean up HLS
-      destroyHLSPlayer();
       if (hlsPlayer) {
         hlsPlayer.pause();
         hlsPlayer.removeAttribute("src");
         hlsPlayer.load();
-        hlsPlayer.style.display = "none"; // ✅ Fully hide HLS player
+        hlsPlayer.style.display = "none";
       }
+    }
 
-      // Show Twitch
+    function changeStream(channel) {
+      currentMode = "twitch";
+      destroyHLSPlayer();
+
       document.getElementById("twitch-embed").style.display = "block";
 
       if (player && isPlayerReady) {
@@ -197,11 +196,9 @@
 
     function changeToHLS(hlsUrl) {
       currentMode = "hls";
-
-      // Clean up Twitch
       destroyTwitchPlayer();
-      document.getElementById("twitch-embed").style.display = "none";
 
+      document.getElementById("twitch-embed").style.display = "none";
       hlsPlayer.style.display = "block";
 
       if (Hls.isSupported()) {
