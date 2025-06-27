@@ -102,7 +102,7 @@
   <div class="video-container">
     <div class="aspect-ratio-box">
       <div id="twitch-embed"></div>
-      <video id="hls-player" controls></video>
+      <video id="hls-player" controls muted></video>
     </div>
     <div class="custom-controls">
       <button onclick="playStream()">▶️ Play</button>
@@ -128,7 +128,7 @@
     const domain = "jowanjowan.github.io";
     let player;
     let isPlayerReady = false;
-    let currentMode = "twitch"; // or "hls"
+    let currentMode = "twitch"; // "twitch" or "hls"
     const hlsPlayer = document.getElementById("hls-player");
     let hlsInstance;
 
@@ -144,42 +144,65 @@
 
       player.addEventListener(Twitch.Player.READY, () => {
         isPlayerReady = true;
+        player.setMuted(false); // Auto-unmute
+        player.play();          // Auto-play
       });
     }
 
-    function changeStream(channel) {
-      currentMode = "twitch";
+    function destroyTwitchPlayer() {
+      if (player) {
+        player.pause();
+        const iframe = document.querySelector("#twitch-embed iframe");
+        if (iframe) iframe.src = "about:blank";
+        player = null;
+        isPlayerReady = false;
+      }
+    }
 
-      // Hide HLS
+    function destroyHLSPlayer() {
       if (hlsInstance) {
         hlsInstance.destroy();
         hlsInstance = null;
       }
       hlsPlayer.pause();
+      hlsPlayer.removeAttribute("src");
+      hlsPlayer.load();
+    }
+
+    function changeStream(channel) {
+      currentMode = "twitch";
+
+      destroyHLSPlayer();
       hlsPlayer.style.display = "none";
 
-      // Show Twitch
       document.getElementById("twitch-embed").style.display = "block";
 
-      if (player) {
+      if (player && isPlayerReady) {
         player.setChannel(channel);
-        player.setMuted(true);
+        player.setMuted(false);
+        player.play();
       } else {
         createPlayer(channel);
+
+        const interval = setInterval(() => {
+          if (player && isPlayerReady) {
+            player.setMuted(false);
+            player.play();
+            clearInterval(interval);
+          }
+        }, 100);
       }
     }
 
     function changeToHLS(hlsUrl) {
       currentMode = "hls";
 
-      // Hide Twitch
+      destroyTwitchPlayer();
       document.getElementById("twitch-embed").style.display = "none";
 
-      // Show HLS Player
       hlsPlayer.style.display = "block";
 
       if (Hls.isSupported()) {
-        if (hlsInstance) hlsInstance.destroy();
         hlsInstance = new Hls();
         hlsInstance.loadSource(hlsUrl);
         hlsInstance.attachMedia(hlsPlayer);
