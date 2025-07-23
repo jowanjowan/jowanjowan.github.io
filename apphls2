@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MainConnect TV Player</title>
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  <style>
+    body {
+      background-color: #1a1a2e;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+    .player-container {
+      max-width: 720px;
+      margin: 2rem auto;
+    }
+    select {
+      padding: 0.6rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>MainConnect Live TV</h1>
+
+  <div class="player-container">
+    <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto" width="720" height="405"></video>
+  </div>
+
+  <label for="tvSelector">Select a Live Channel:</label><br />
+  <select id="tvSelector">
+    <option value="">-- Loading streams... --</option>
+  </select>
+
+  <script>
+    const player = videojs('hlsPlayer');
+    const selector = document.getElementById('tvSelector');
+
+    async function fetchLiveStreams() {
+      try {
+        const res = await fetch('http://broadcast2.mainconnect.co.ke:8080/stat');
+        const text = await res.text();
+
+        // Extract stream names followed by active status
+        const activeStreams = [];
+        const regex = /(\w+)\s+\d+\s+H264[\s\S]+?active/g;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          const streamName = match[1];
+          if (!activeStreams.includes(streamName)) {
+            activeStreams.push(streamName);
+          }
+        }
+
+        // Clear selector and add valid streams
+        selector.innerHTML = `<option value="">-- Select a Channel --</option>`;
+        activeStreams.forEach(stream => {
+          const hlsUrl = `http://broadcast2.mainconnect.co.ke:8080/tmp_hls/${stream}/index.m3u8`;
+          const option = document.createElement('option');
+          option.value = hlsUrl;
+          option.textContent = stream.toUpperCase();
+          selector.appendChild(option);
+        });
+
+      } catch (err) {
+        console.error("Failed to fetch streams:", err);
+        selector.innerHTML = `<option value="">-- Failed to load --</option>`;
+      }
+    }
+
+    selector.addEventListener('change', function () {
+      const url = this.value;
+      if (url) {
+        player.src({ type: 'application/x-mpegURL', src: url });
+        player.play();
+      } else {
+        player.pause();
+        player.src('');
+      }
+    });
+
+    fetchLiveStreams();
+  </script>
+</body>
+</html>
