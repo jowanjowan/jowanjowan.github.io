@@ -7,9 +7,9 @@
   <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
   <style>
     body {
-      background-color: #1a1a2e;
-      color: #fff;
-      font-family: sans-serif;
+      background-color: #1e1e2f;
+      color: white;
+      font-family: Arial, sans-serif;
       padding: 2rem;
       text-align: center;
     }
@@ -26,54 +26,25 @@
   </style>
 </head>
 <body>
-  <h1>MainConnect Live TV</h1>
+  <h1>MainConnect TV Selector</h1>
 
   <div class="player-container">
     <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto" width="720" height="405"></video>
   </div>
 
-  <label for="tvSelector">Select a Live Channel:</label><br />
+  <label for="tvSelector">Select a Channel:</label><br />
   <select id="tvSelector">
-    <option value="">-- Loading streams... --</option>
+    <option value="">-- Choose a Channel --</option>
+    <option value="http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mbcitv/index.m3u8">MBCI TV</option>
+    <option value="http://broadcast2.mainconnect.co.ke:8080/tmp_hls/chosen/index.m3u8">Chosen TV</option>
+    <option value="http://broadcast2.mainconnect.co.ke:8080/tmp_hls/impact/index.m3u8">Impact TV</option>
+    <!-- Add more channels here -->
   </select>
 
   <script>
     const player = videojs('hlsPlayer');
-    const selector = document.getElementById('tvSelector');
 
-    async function fetchLiveStreams() {
-      try {
-        const res = await fetch('http://broadcast2.mainconnect.co.ke:8080/stat');
-        const text = await res.text();
-
-        // Extract stream names followed by active status
-        const activeStreams = [];
-        const regex = /(\w+)\s+\d+\s+H264[\s\S]+?active/g;
-        let match;
-        while ((match = regex.exec(text)) !== null) {
-          const streamName = match[1];
-          if (!activeStreams.includes(streamName)) {
-            activeStreams.push(streamName);
-          }
-        }
-
-        // Clear selector and add valid streams
-        selector.innerHTML = `<option value="">-- Select a Channel --</option>`;
-        activeStreams.forEach(stream => {
-          const hlsUrl = `http://broadcast2.mainconnect.co.ke:8080/tmp_hls/${stream}/index.m3u8`;
-          const option = document.createElement('option');
-          option.value = hlsUrl;
-          option.textContent = stream.toUpperCase();
-          selector.appendChild(option);
-        });
-
-      } catch (err) {
-        console.error("Failed to fetch streams:", err);
-        selector.innerHTML = `<option value="">-- Failed to load --</option>`;
-      }
-    }
-
-    selector.addEventListener('change', function () {
+    document.getElementById('tvSelector').addEventListener('change', function () {
       const url = this.value;
       if (url) {
         player.src({ type: 'application/x-mpegURL', src: url });
@@ -83,8 +54,6 @@
         player.src('');
       }
     });
-
-    fetchLiveStreams();
   </script>
 </body>
 </html>
