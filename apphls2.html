@@ -2,58 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MainConnect TV2 Player</title>
+  <title>MainConnect TV Channels</title>
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
   <style>
     body {
-      background-color: #1e1e2f;
+      background: #111;
       color: white;
       font-family: Arial, sans-serif;
-      padding: 2rem;
       text-align: center;
+      padding: 2rem;
     }
-    .player-container {
-      max-width: 720px;
-      margin: 2rem auto;
+    .video-js {
+      width: 80%;
+      max-width: 800px;
+      height: 450px;
+      margin: 0 auto 2rem;
     }
-    select {
-      padding: 0.6rem;
-      font-size: 1rem;
-      margin-top: 1rem;
-      width: 300px;
+    .channel-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .channel-card {
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      width: 200px;
+      transition: transform 0.2s;
+    }
+    .channel-card:hover {
+      transform: scale(1.05);
+    }
+    .channel-thumbnail {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    .channel-name {
+      padding: 0.8rem;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>MainConnect TV Selector</h1>
 
-  <div class="player-container">
-    <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto" width="720" height="405"></video>
+  <h1>MainConnect TV Player</h1>
+
+  <!-- Video Player -->
+  <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto"></video>
+
+  <!-- Channel List -->
+  <div class="channel-grid">
+    <!-- MBCI TV -->
+    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mbcitv/index.m3u8')">
+      <img src="https://via.placeholder.com/200x120.png?text=MBCI+TV" alt="MBCI TV" class="channel-thumbnail" />
+      <div class="channel-name">MBCI TV</div>
+    </div>
+
+    <!-- Chosen TV -->
+    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/chosen/index.m3u8')">
+      <img src="https://via.placeholder.com/200x120.png?text=Chosen+TV" alt="Chosen TV" class="channel-thumbnail" />
+      <div class="channel-name">Chosen TV</div>
+    </div>
+
+    <!-- Impact TV -->
+    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/impact/index.m3u8')">
+      <img src="https://via.placeholder.com/200x120.png?text=Impact+TV" alt="Impact TV" class="channel-thumbnail" />
+      <div class="channel-name">Impact TV</div>
+    </div>
+
+    <!-- Add more channels below as needed -->
   </div>
-
-  <label for="tvSelector">Select a Channel:</label><br />
-  <select id="tvSelector">
-    <option value="">-- Choose a Channel --</option>
-    <option value="http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mbcitv/index.m3u8">MBCI TV</option>
-    <option value="http://broadcast2.mainconnect.co.ke:8080/tmp_hls/chosen/index.m3u8">Chosen TV</option>
-    <option value="http://broadcast2.mainconnect.co.ke:8080/tmp_hls/impact/index.m3u8">Impact TV</option>
-    <!-- Add more channels here -->
-  </select>
 
   <script>
     const player = videojs('hlsPlayer');
 
-    document.getElementById('tvSelector').addEventListener('change', function () {
-      const url = this.value;
-      if (url) {
-        player.src({ type: 'application/x-mpegURL', src: url });
-        player.play();
-      } else {
-        player.pause();
-        player.src('');
-      }
-    });
+    function playStream(url) {
+      player.src({ type: 'application/x-mpegURL', src: url });
+      player.play();
+    }
   </script>
+
 </body>
 </html>
