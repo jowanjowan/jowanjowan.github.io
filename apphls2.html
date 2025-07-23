@@ -13,37 +13,50 @@
       text-align: center;
       padding: 2rem;
     }
+
     .video-js {
-      width: 80%;
-      max-width: 800px;
-      height: 450px;
+      width: 100%;
+      max-width: 900px;
+      height: 500px;
       margin: 0 auto 2rem;
     }
+
     .channel-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
     }
+
     .channel-card {
       background: #222;
       border-radius: 10px;
       overflow: hidden;
       cursor: pointer;
-      width: 200px;
       transition: transform 0.2s;
     }
+
     .channel-card:hover {
       transform: scale(1.05);
     }
+
     .channel-thumbnail {
       width: 100%;
       height: 120px;
       object-fit: cover;
     }
+
     .channel-name {
       padding: 0.8rem;
       font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .video-js {
+        height: auto;
+      }
     }
   </style>
 </head>
@@ -54,63 +67,37 @@
   <!-- Video Player -->
   <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto"></video>
 
-  <!-- Channel List -->
+  <!-- Channel Grid (4 Columns on Desktop) -->
   <div class="channel-grid">
+
     <!-- MBCI TV -->
     <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mbcitv/index.m3u8')">
-      <img src="https://play-lh.googleusercontent.com/_v67cT93M4LVasv2ynCit64sKo_gz4ji5tu_5LemiuqltJrE1DkcCFohDSB_wxCRzH_K=w600-h300-pc0xffffff-pd" alt="MBCI TV" class="channel-thumbnail" />
+      <img src="https://play-lh.googleusercontent.com/_v67cT93M4LVasv2ynCit64sKo_gz4ji5tu_5LemiuqltJrE1DkcCFohDSB_wxCRzH_K=w600-h300-pc0xffffff-pd" 
+           alt="MBCI TV" class="channel-thumbnail" />
       <div class="channel-name">MBCI TV</div>
     </div>
 
     <!-- Chosen TV -->
     <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mainconnecttv/index.m3u8')">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7KpwzHtRGsupJmTwpAxyavPsskcMuqsn5Hw&s" alt="Chosen TV" class="channel-thumbnail" />
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7KpwzHtRGsupJmTwpAxyavPsskcMuqsn5Hw&s" 
+           alt="Chosen TV" class="channel-thumbnail" />
       <div class="channel-name">Chosen TV</div>
     </div>
 
-    <!-- Impact TV -->
+    <!-- Oracle TV -->
     <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/oracletv/index.m3u8')">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKIEGfXduLHWWEaQAowKHhD8pREzSWgjwu8A&s" alt="oracle tv" class="channel-thumbnail" />
-      <div class="channel-name">oracletv</div>
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKIEGfXduLHWWEaQAowKHhD8pREzSWgjwu8A&s" 
+           alt="Oracle TV" class="channel-thumbnail" />
+      <div class="channel-name">Oracle TV</div>
     </div>
 
- <!-- MBCI TV -->
-    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mbcitv/index.m3u8')">
-      <img src="https://play-lh.googleusercontent.com/_v67cT93M4LVasv2ynCit64sKo_gz4ji5tu_5LemiuqltJrE1DkcCFohDSB_wxCRzH_K=w600-h300-pc0xffffff-pd" alt="MBCI TV" class="channel-thumbnail" />
-      <div class="channel-name">MBCI TV</div>
+    <!-- Placeholder / Example Channel -->
+    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/riritvnakuru/index.m3u8')">
+      <img src="https://via.placeholder.com/200x120?text=Test+TV" 
+           alt="riritvnakuru" class="channel-thumbnail" />
+      <div class="channel-name">riritvnakuru</div>
     </div>
 
-    <!-- Chosen TV -->
-    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mainconnecttv/index.m3u8')">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7KpwzHtRGsupJmTwpAxyavPsskcMuqsn5Hw&s" alt="Chosen TV" class="channel-thumbnail" />
-      <div class="channel-name">Chosen TV</div>
-    </div>
-
-    <!-- Impact TV -->
-    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/oracletv/index.m3u8')">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKIEGfXduLHWWEaQAowKHhD8pREzSWgjwu8A&s" alt="oracle tv" class="channel-thumbnail" />
-      <div class="channel-name">oracletv</div>
-    </div>
-	
-	 <!-- MBCI TV -->
-    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mbcitv/index.m3u8')">
-      <img src="https://play-lh.googleusercontent.com/_v67cT93M4LVasv2ynCit64sKo_gz4ji5tu_5LemiuqltJrE1DkcCFohDSB_wxCRzH_K=w600-h300-pc0xffffff-pd" alt="MBCI TV" class="channel-thumbnail" />
-      <div class="channel-name">MBCI TV</div>
-    </div>
-
-    <!-- Chosen TV -->
-    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mainconnecttv/index.m3u8')">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7KpwzHtRGsupJmTwpAxyavPsskcMuqsn5Hw&s" alt="Chosen TV" class="channel-thumbnail" />
-      <div class="channel-name">Chosen TV</div>
-    </div>
-
-    <!-- Impact TV -->
-    <div class="channel-card" onclick="playStream('http://broadcast2.mainconnect.co.ke:8080/tmp_hls/oracletv/index.m3u8')">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKIEGfXduLHWWEaQAowKHhD8pREzSWgjwu8A&s" alt="oracle tv" class="channel-thumbnail" />
-      <div class="channel-name">oracletv</div>
-    </div>
-
-    <!-- Add more channels below as needed -->
   </div>
 
   <script>
