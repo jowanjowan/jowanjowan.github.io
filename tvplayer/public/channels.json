@@ -1,0 +1,6 @@
+[
+  { "label": "MainConnect", "type": "twitch", "channel": "mainconnect" },
+  { "label": "Mamlaka TV", "type": "twitch", "channel": "mamlakatv" },
+  { "label": "KA TV", "type": "twitch", "channel": "katelevisionke" },
+  { "label": "Test HLS", "type": "hls", "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }
+]
