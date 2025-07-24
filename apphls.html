@@ -17,23 +17,23 @@
       background: #111;
       color: white;
       font-family: Arial, sans-serif;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     #main-container {
-      width: 640px;
-      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
     }
 
     #player-wrapper {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 640px;
-      height: 360px;
+      width: 100%;
+      max-width: 640px;
+      aspect-ratio: 16 / 9;
       background: #000;
-      z-index: 1000;
     }
 
     .video-js {
@@ -42,39 +42,31 @@
     }
 
     #now-playing {
-      position: fixed;
-      top: 360px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 640px;
+      width: 100%;
+      max-width: 600px;
       background-color: #222;
       text-align: center;
       font-size: 1rem;
-      padding: 0.4rem 0;
-      z-index: 999;
+      padding: 0.5rem;
       border-top: 1px solid #444;
       border-bottom: 1px solid #444;
     }
 
     #channel-scroll {
-      position: absolute;
-      top: 400px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 640px;
-      height: calc(100vh - 400px);
+      flex: 1;
+      width: 100%;
+      max-width: 630px;
       overflow-y: auto;
-      padding: 1rem 0;
-      scrollbar-width: none; /* Firefox */
+      padding: 1rem;
     }
 
-    #channel-scroll::-webkit-scrollbar {
+ #channel-scroll::-webkit-scrollbar {
       display: none; /* Chrome/Safari */
     }
-
+	
     .channel-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 1rem;
     }
 
@@ -92,7 +84,7 @@
     }
 
     .channel-card.active {
-      border: 2px solid #8b5cf6; /* purple border for active channel */
+      border: 2px solid #8b5cf6;
       box-shadow: 0 0 10px #8b5cf6;
     }
 
@@ -109,23 +101,13 @@
       text-align: center;
       font-size: 0.85rem;
     }
-
-    @media (max-width: 660px) {
-      #main-container,
-      #player-wrapper,
-      #channel-scroll,
-      #now-playing {
-        width: 100%;
-        max-width: 640px;
-      }
-    }
   </style>
 </head>
 <body>
 
   <div id="main-container">
 
-    <!-- Fixed Player -->
+    <!-- Video Player -->
     <div id="player-wrapper">
       <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto"></video>
     </div>
@@ -133,11 +115,12 @@
     <!-- Now Playing -->
     <div id="now-playing">Now Playing: <span id="channel-title">None</span></div>
 
-    <!-- Scrollable List (No Scrollbar) -->
+    <!-- Channel List -->
     <div id="channel-scroll">
       <div class="channel-grid">
-
-        <!-- MBCI TV -->
+        <!-- All your channel cards go here as-is -->
+        <!-- Example: -->
+         <!-- MBCI TV -->
         <div class="channel-card" onclick="playStream(this, 'MBCI TV', 'http://broadcast2.mainconnect.co.ke:8080/tmp_hls/mbcitv/index.m3u8')">
           <img src="https://play-lh.googleusercontent.com/_v67cT93M4LVasv2ynCit64sKo_gz4ji5tu_5LemiuqltJrE1DkcCFohDSB_wxCRzH_K=w600-h300-pc0xffffff-pd"
                alt="MBCI TV" class="channel-thumbnail" />
@@ -220,7 +203,7 @@
                alt="womens-sportsV" class="channel-thumbnail" />
           <div class="channel-name">womens-sports</div>
         </div>
-
+        <!-- (copy the rest of your channel cards here) -->
       </div>
     </div>
   </div>
