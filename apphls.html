@@ -66,7 +66,7 @@
 	
     .channel-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(5, minmax(50px, 1fr));
       gap: 1rem;
     }
 
@@ -90,16 +90,16 @@
 
     .channel-thumbnail {
       width: 100%;
-      height: 80px;
+      height: 40px;
       object-fit: cover;
     }
 
     .channel-name {
-      padding: 0.5rem;
+      padding: 0.2rem;
       font-weight: bold;
       text-transform: uppercase;
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.6rem;
     }
   </style>
 </head>
@@ -155,6 +155,12 @@
           <div class="channel-name">Riri TV</div>
         </div>
 		
+		 <!-- Riri TV -->
+        <div class="channel-card" onclick="playStream(this, 'Inooro_Tv', 'https://74937.global.ssl.fastly.net/5ea49827ff3b5d7b22708777/live_6382dd401ce311f097d41d161154da2f/tracks-v1a1/mono.m3u8')">
+          <img src="https://yt3.googleusercontent.com/-7KyJe8abxH2UV5egD5fd9VNT2BI-nHnJJT9JCVcSrzJeIcD2DrkSaBt4waEzlXByeazYqUBXHU=s900-c-k-c0x00ffffff-no-rj"
+               alt="Inooro-Tv" class="channel-thumbnail" />
+          <div class="channel-name">Inooro Tv</div>
+        </div>
 		<!-- Oracle TV -->
         <div class="channel-card" onclick="playStream(this, 'Faith TV', 'https://cdn.freevisiontv.co.za/sttv/smil:faith.stream.smil/playlist.m3u8')">
           <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQVQeCzLp_2KhIN-r4df9n2ifj3BhLpQUAOQ&s"
@@ -183,6 +189,13 @@
           <div class="channel-name">citizen extra</div>
         </div>
 
+		<!-- Ndisi TV -->
+        <div class="channel-card" onclick="playStream(this, 'Citizen Tv', 'https://74937.global.ssl.fastly.net/5ea49827ff3b5d7b22708777/live_3eda32e0338c11efbaa61bcd263062f2/tracks-v1a1/mono.m3u8')">
+          <img src="https://www.seekpng.com/png/detail/227-2275787_logo-citizen-tv-kenya-logo.png"
+               alt="Citizen Tv" class="channel-thumbnail" />
+          <div class="channel-name">Citizen Tv</div>
+        </div>
+		
         <!-- Oracle TV -->
         <div class="channel-card" onclick="playStream(this, 'africatv', 'http://africatv.live.net.sa:1935/live/africatv2/playlist.m3u8')">
           <img src="https://yt3.googleusercontent.com/ytc/AIdro_kcG7Hf4z6oK8yzeomCwKUaHSjTEin1NqTDZqVrUhbvew=s900-c-k-c0x00ffffff-no-rj"
@@ -191,18 +204,28 @@
         </div>
 
         <!-- Ndisi TV -->
-        <div class="channel-card" onclick="playStream(this, 'ga-ksaports1', 'https://live20.bozztv.com/gin-36bay3/ga-ksaports1/index.m3u8')">
-          <img src="https://www.gasports.ie/wp-content/uploads/2018/10/GA-Sports-Square-logo.png"
-               alt="ga-ksaports1" class="channel-thumbnail" />
-          <div class="channel-name">ga-ksaports1</div>
+        <div class="channel-card" onclick="playStream(this, 'NICKELODEON', 'http://23.237.104.106:8080/USA_NICKELODEON/index.m3u8')">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQDPhtZtrzBhjXKD3ItmrLLXWIM3-m5eVzTQ&s"
+               alt="NICKELODEON" class="channel-thumbnail" />
+          <div class="channel-name">NICKELODEON</div>
         </div>
 
         <!-- Riri TV -->
-        <div class="channel-card" onclick="playStream(this, 'womens-sports', 'https://apollo.production-public.tubi.io/live/ac-fast-studios-womens-sports.m3u8')">
-          <img src="https://cdn.mos.cms.futurecdn.net/JCaC8uwG2WTpG3WCRHdJih.jpg"
-               alt="womens-sportsV" class="channel-thumbnail" />
-          <div class="channel-name">womens-sports</div>
+        <div class="channel-card" onclick="playStream(this, 'Ramogi Tv', 'https://citizentv.castr.com/5ea49827ff3b5d7b22708777/live_9b761ff063f511eca12909b8ef1524b4/tracks-v1a1/mono.m3u8')">
+          <img src="https://assets.citizen.digital/7135/conversions/ramogi-tv-og_image.jpg"
+               alt="Ramogi Tv" class="channel-thumbnail" />
+          <div class="channel-name">Ramogi Tv</div>
         </div>
+		
+		 <!-- Oracle TV -->
+        <div class="channel-card" onclick="playStream(this, 'Teen_Nick', 'https://fl3.moveonjoy.com/Teen_Nick/index.m3u8')">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/f/f7/TeenNick_2023_Alternative_Logo.png"
+               alt="Teen_Nick" class="channel-thumbnail" />
+          <div class="channel-name">Teen_Nick</div>
+        </div>
+
+        
+		
         <!-- (copy the rest of your channel cards here) -->
       </div>
     </div>
