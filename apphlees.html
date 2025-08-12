@@ -1,253 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Twitch & HLS Custom Player</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MainConnect TV Channels</title>
+<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
 
-  <!-- Twitch Embed -->
-  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+  }
 
-  <!-- HLS.js -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  /* Video Player */
+  .video-container {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    background: black;
+  }
+  .video-js {
+    width: 100%;
+    height: 100%;
+  }
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #fff;
-      margin: 0;
+  /* Channel Grid */
+  .channel-grid {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+  }
+  @media (orientation: portrait) {
+    .channel-grid {
+      grid-template-columns: 1fr;
     }
-
-    .video-container {
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      background-color: #000;
+  }
+  @media (orientation: landscape) {
+    .channel-grid {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     }
+  }
 
-    .aspect-ratio-box {
-      position: relative;
-      width: 100%;
-      height: 300px;
-      background-color: black;
-    }
-
-    #twitch-embed, #hls-player {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    #twitch-embed iframe {
-      width: 100% !important;
-      height: 100% !important;
-      border: none;
-    }
-
-    #hls-player {
-      background: black;
-      display: none;
-    }
-
-    .custom-controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      padding: 10px;
-      background-color: #1e1e1e;
-    }
-
-    .custom-controls button {
-      background-color: #333;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      font-size: 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .custom-controls button:hover {
-      background-color: #555;
-    }
-
-    .stream-list {
-      list-style: none;
-      padding: 20px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .stream-list li {
-      background-color: #1e1e1e;
-      margin: 10px 0;
-      padding: 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      font-size: 1.2rem;
-      text-align: center;
-    }
-
-    .stream-list li:hover {
-      background-color: #333;
-    }
-  </style>
+  /* Channel Cards */
+  .channel-card {
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    text-align: center;
+  }
+  .channel-card:hover {
+    transform: scale(1.05);
+  }
+  .channel-card.active {
+    outline: 2px solid #ff9900;
+  }
+</style>
 </head>
 <body>
 
-  <div class="video-container">
-    <div class="aspect-ratio-box">
-      <div id="twitch-embed"></div>
-      <video id="hls-player" controls muted></video>
-    </div>
-    <div class="custom-controls">
-      <button onclick="playStream()">▶️ Play</button>
-      <button onclick="pauseStream()">⏸️ Pause</button>
-      <button onclick="unmuteStream()">🔊 Unmute</button>
-    </div>
+<div class="video-container">
+  <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto"></video>
+</div>
+
+<h2 id="channel-title" style="padding: 10px;">Select a Channel</h2>
+
+<div class="channel-grid">
+  <div class="channel-card" onclick="playStream(this, 'Channel 1', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">
+    Channel 1
   </div>
+  <div class="channel-card" onclick="playStream(this, 'Channel 2', 'https://moctv.live/hls/stream2.m3u8')">
+    Channel 2
+  </div>
+</div>
 
-  <ul class="stream-list">
-    <!-- Twitch Streams -->
-    <li onclick="changeStream('mainconnect')">📺 MainConnect</li>
-    <li onclick="changeStream('mamlakatv')">📺 MamlakaTV</li>
-    <li onclick="changeStream('katelevisionke')">📺 KA Tv</li>
-    <li onclick="changeStream('pdtelevision')">🎮 pdtelevision</li>
-    <li onclick="changeStream('shroud')">🎮 Shroud</li>
-    <li onclick="changeStream('xqc')">🎮 xQc</li>
+<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+<script>
+  const player = videojs('hlsPlayer');
 
-    <!-- HLS Stream Example -->
-    <li onclick="changeToHLS('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">📡 HLS Test Stream</li>
-  </ul>
+  function playStream(card, title, url) {
+    document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    document.getElementById('channel-title').innerText = title;
+    player.src({ src: url, type: 'application/x-mpegURL' });
+    player.play();
+  }
 
-  <script>
-    const domain = "jowanjowan.github.io";
-    let player;
-    let isPlayerReady = false;
-    let currentMode = "twitch";
-    const hlsPlayer = document.getElementById("hls-player");
-    let hlsInstance;
+  function isMobile() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
 
-    function createPlayer(channel) {
-      player = new Twitch.Player("twitch-embed", {
-        channel: channel,
-        parent: [domain],
-        autoplay: false,
-        muted: true,
-        controls: false,
-        layout: "video"
-      });
+  window.addEventListener('orientationchange', () => {
+    let videoContainer = document.querySelector('.video-container');
 
-      player.addEventListener(Twitch.Player.READY, () => {
-        isPlayerReady = true;
-        player.setMuted(false);
-        player.play();
-      });
-    }
-
-    function destroyTwitchPlayer() {
-      if (player) {
-        player.pause();
-        const iframe = document.querySelector("#twitch-embed iframe");
-        if (iframe) iframe.src = "about:blank";
-        player = null;
-        isPlayerReady = false;
+    if (window.matchMedia("(orientation: landscape)").matches) {
+      if (isMobile()) {
+        // Try native fullscreen
+        if (videoContainer.requestFullscreen) {
+          videoContainer.requestFullscreen();
+        } else {
+          // Fallback: simulated fullscreen
+          videoContainer.style.position = 'fixed';
+          videoContainer.style.top = '0';
+          videoContainer.style.left = '0';
+          videoContainer.style.width = '100%';
+          videoContainer.style.height = '100%';
+          videoContainer.style.zIndex = '9999';
+          videoContainer.style.background = '#000';
+        }
       }
-    }
-
-    function destroyHLSPlayer() {
-      if (hlsInstance) {
-        hlsInstance.destroy();
-        hlsInstance = null;
+    } else {
+      // Exit fullscreen or reset
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
       }
-      if (hlsPlayer) {
-        hlsPlayer.pause();
-        hlsPlayer.removeAttribute("src");
-        hlsPlayer.load();
-        hlsPlayer.style.display = "none";
-      }
+      videoContainer.removeAttribute('style');
     }
-
-    function changeStream(channel) {
-      currentMode = "twitch";
-      destroyHLSPlayer();
-
-      document.getElementById("twitch-embed").style.display = "block";
-
-      if (player && isPlayerReady) {
-        player.setChannel(channel);
-        player.setMuted(false);
-        player.play();
-      } else {
-        createPlayer(channel);
-        const interval = setInterval(() => {
-          if (player && isPlayerReady) {
-            player.setMuted(false);
-            player.play();
-            clearInterval(interval);
-          }
-        }, 100);
-      }
-    }
-
-    function changeToHLS(hlsUrl) {
-      currentMode = "hls";
-      destroyTwitchPlayer();
-
-      document.getElementById("twitch-embed").style.display = "none";
-      hlsPlayer.style.display = "block";
-
-      if (Hls.isSupported()) {
-        hlsInstance = new Hls();
-        hlsInstance.loadSource(hlsUrl);
-        hlsInstance.attachMedia(hlsPlayer);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          hlsPlayer.muted = false;
-          hlsPlayer.play();
-        });
-      } else if (hlsPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-        hlsPlayer.src = hlsUrl;
-        hlsPlayer.addEventListener('loadedmetadata', () => {
-          hlsPlayer.muted = false;
-          hlsPlayer.play();
-        });
-      }
-    }
-
-    function playStream() {
-      if (currentMode === "twitch" && player && isPlayerReady) {
-        player.play();
-      } else if (currentMode === "hls") {
-        hlsPlayer.play();
-      }
-    }
-
-    function pauseStream() {
-      if (currentMode === "twitch" && player && isPlayerReady) {
-        player.pause();
-      } else if (currentMode === "hls") {
-        hlsPlayer.pause();
-      }
-    }
-
-    function unmuteStream() {
-      if (currentMode === "twitch" && player && isPlayerReady) {
-        player.setMuted(false);
-        player.play();
-      } else if (currentMode === "hls") {
-        hlsPlayer.muted = false;
-        hlsPlayer.play();
-      }
-    }
-
-    window.onload = () => {
-      createPlayer("mainconnect");
-    };
-  </script>
-
+  });
+</script>
 </body>
 </html>
