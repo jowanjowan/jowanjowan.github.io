@@ -1,110 +1,262 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MainConnect TV Channels</title>
-<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
-
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: #fff;
-  }
-
-  /* Video Player */
-  .video-container {
-    width: 100%;
-    max-width: 100%;
-    aspect-ratio: 16 / 9;
-    background: black;
-  }
-  .video-js {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Channel Grid */
-  .channel-grid {
-    display: grid;
-    gap: 10px;
-    padding: 10px;
-  }
-  @media (orientation: portrait) {
-    .channel-grid {
-      grid-template-columns: 1fr;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live TV</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      padding-top: 40vh; /* Push content below the fixed video player */
     }
-  }
-  @media (orientation: landscape) {
-    .channel-grid {
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    }
-  }
 
-  /* Channel Cards */
-  .channel-card {
-    background: #222;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    text-align: center;
-  }
-  .channel-card:hover {
-    transform: scale(1.05);
-  }
-  .channel-card.active {
-    outline: 2px solid #ff9900;
-  }
-</style>
+    #player-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40vh;
+      background: #000;
+      z-index: 999;
+    }
+
+    #video-player {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+
+    #video-player > * {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    #info-box {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #222;
+      padding: 10px;
+      font-size: 14px;
+      color: #eee;
+    }
+
+    #search-box {
+      padding: 10px;
+      text-align: center;
+    }
+
+    #search {
+      width: 90%;
+      max-width: 400px;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+    }
+
+    #channel-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      justify-content: center;
+    }
+
+    .channel {
+      width: 110px;
+      height: 130px;
+      background: #333;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    .channel:hover {
+      transform: scale(1.03);
+    }
+
+    .channel img {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+    }
+
+    .channel.active {
+      border-color: #1e90ff;
+    }
+
+    @media (max-width: 600px) {
+      .channel {
+        width: 100px;
+        height: 120px;
+      }
+
+      body {
+        padding-top: 30vh;
+      }
+
+      #player-container {
+        height: 30vh;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
-<div class="video-container">
-  <video id="hlsPlayer" class="video-js vjs-default-skin" controls preload="auto"></video>
-</div>
-
-<h2 id="channel-title" style="padding: 10px;">Select a Channel</h2>
-
-<div class="channel-grid">
-  <div class="channel-card" onclick="playStream(this, 'Channel 1', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">
-    Channel 1
+  <div id="player-container">
+    <div id="video-player">
+        <div style="color: #ccc; text-align: center; padding-top: 15%; pointer-events: none;">Select a channel to start watching</div>
+    </div>
+    <div id="info-box">Waiting for channel selection...</div>
   </div>
-  <div class="channel-card" onclick="playStream(this, 'Channel 2', 'https://moctv.live/hls/stream2.m3u8')">
-    Channel 2
+
+  <div id="search-box">
+    <input type="text" id="search" placeholder="Search channels..." />
   </div>
-</div>
 
-<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
-<script>
-  const player = videojs('hlsPlayer');
+  <div id="channel-list"></div>
 
-  function playStream(card, title, url) {
-    document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-    document.getElementById('channel-title').innerText = title;
-    player.src({ src: url, type: 'application/x-mpegURL' });
-    player.play();
-  }
+  <script>
+    const CHANNELS_JSON_URL = "http://mainconnect.co.ke:8080/channels.json";
 
-  function isMobile() {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
+    const playerContainer = document.getElementById("video-player");
+    const infoBox = document.getElementById("info-box");
+    const channelList = document.getElementById("channel-list");
+    const searchInput = document.getElementById("search");
 
-  window.addEventListener('orientationchange', () => {
-    let videoContainer = document.querySelector('.video-container');
+    let hls;
+    let currentChannelDiv = null;
 
-    if (window.matchMedia("(orientation: landscape)").matches) {
-      if (isMobile()) {
-        // Try native fullscreen
-        if (videoContainer.requestFullscreen) {
-          videoContainer.requestFullscreen();
-        } else {
-          // Fallback: simulated fullscreen
-          videoContainer.style.position = 'fixed';
-          videoContainer.style.top = '0';
+    function playHLS(url) {
+      playerContainer.innerHTML = `<video id="video" controls autoplay></video>`;
+      const video = document.getElementById("video");
+
+      if (Hls.isSupported()) {
+        if (hls) hls.destroy();
+        hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = url;
+      }
+    }
+
+    function playTwitch(channelName) {
+      playerContainer.innerHTML = `<iframe
+        src="https://player.twitch.tv/?channel=${channelName}&parent=${window.location.hostname}"
+        frameborder="0" allowfullscreen>
+      </iframe>`;
+    }
+
+    function highlightNowPlaying(div) {
+      if (currentChannelDiv) currentChannelDiv.classList.remove("active");
+      div.classList.add("active");
+      currentChannelDiv = div;
+    }
+
+    async function loadChannelEPG(epgUrl, channelName) {
+      infoBox.innerHTML = `Loading EPG for ${channelName}...`;
+      try {
+        const res = await fetch(epgUrl);
+        const csv = await res.text();
+        const lines = csv.trim().split("\n");
+        const now = new Date();
+        const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+        const currentTime = now.toTimeString().substr(0, 5);
+
+        for (let i = 1; i < lines.length; i++) {
+          const [day, start, end, title, next] = lines[i].split(',').map(v => v.trim());
+          if (day === currentDay && start <= currentTime && end > currentTime) {
+            infoBox.innerHTML = `
+              <strong>Now Playing:</strong> ${channelName}<br>
+              <strong>Program:</strong> ${title}<br>
+              <strong>Next:</strong> ${next}<br>
+              <strong>Time:</strong> ${start} - ${end}
+            `;
+            return;
+          }
+        }
+
+        infoBox.innerHTML = `
+          <strong>Now Playing:</strong> ${channelName}<br>
+          <em>No program info available.</em>
+        `;
+      } catch (err) {
+        infoBox.innerHTML = `
+          <strong>Now Playing:</strong> ${channelName}<br>
+          <em>EPG unavailable</em>
+        `;
+      }
+    }
+
+    async function loadChannels() {
+      try {
+        const res = await fetch(CHANNELS_JSON_URL);
+        const data = await res.json();
+
+        data.forEach(group => {
+          group.channels.forEach(channel => {
+            const div = document.createElement("div");
+            div.className = "channel";
+            div.innerHTML = `
+              <img src="${channel.thumbnail}" loading="lazy" alt="${channel.name}">
+              <div>${channel.name}</div>
+            `;
+
+            div.onclick = () => {
+              if (channel.type === "hls") {
+                playHLS(channel.url);
+              } else if (channel.type === "twitch") {
+                playTwitch(channel.channel);
+              }
+
+              highlightNowPlaying(div);
+
+              if (channel.epg) {
+                loadChannelEPG(channel.epg, channel.name);
+              } else {
+                infoBox.innerHTML = `<strong>Now Playing:</strong> ${channel.name}<br><em>No EPG linked</em>`;
+              }
+            };
+
+            div.dataset.name = channel.name.toLowerCase();
+            channelList.appendChild(div);
+          });
+        });
+      } catch (err) {
+        console.error("Error loading channels:", err);
+        channelList.innerHTML = "<p style='color:red'>Failed to load channels.</p>";
+      }
+    }
+
+    searchInput.addEventListener("input", (e) => {
+      const value = e.target.value.toLowerCase();
+      document.querySelectorAll(".channel").forEach(div => {
+        div.style.display = div.dataset.name.includes(value) ? "block" : "none";
+      });
+    });
+
+    loadChannels();
+  </script>
+</body>
+</html>
           videoContainer.style.left = '0';
           videoContainer.style.width = '100%';
           videoContainer.style.height = '100%';
