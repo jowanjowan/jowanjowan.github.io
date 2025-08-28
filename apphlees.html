@@ -1,701 +1,264 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Live TV</title>
-
   <style>
-
     body {
-
       margin: 0;
-
       font-family: Arial, sans-serif;
-
       background: #111;
-
       color: #fff;
-
       padding-top: 40vh;
-
     }
-
-
 
     #player-container {
-
       position: fixed;
-
       top: 0;
-
       left: 0;
-
       width: 100%;
-
       height: 40vh;
-
       background: #000;
-
       z-index: 999;
-
     }
-
-
 
     #video-player {
-
       position: relative;
-
       width: 100%;
-
       height: 90%;
-
       background: #000;
-
     }
-
-
 
     #video-player > * {
-
       position: absolute;
-
       top: 0;
-
       left: 0;
-
       width: 100%;
-
       height: 100%;
-
       border: none;
-
       display: block;
-
     }
-
-
 
     #info-box {
-
       position: absolute;
-
       bottom: 0;
-
       left: 0;
-
       width: 100%;
-
       background: #222;
-
       padding: 10px;
-
       font-size: 14px;
-
       color: #eee;
-
       line-height: 1.6;
-
       text-align: center;
-
       white-space: nowrap;
-
       overflow: hidden;
-
       text-overflow: ellipsis;
-
     }
-
-
 
     #info-box strong.channel-name {
-
       font-weight: bold;
-
       font-style: italic;
-
       color: #1e90ff;
-
     }
-
-
 
     #search-box {
-
       padding: 10px;
-
       text-align: center;
-
     }
-
-
 
     #search {
-
       width: 90%;
-
       max-width: 400px;
-
       padding: 8px;
-
       border-radius: 5px;
-
       border: none;
-
       font-size: 14px;
-
     }
-
-
 
     #channel-list {
-
       display: flex;
-
       flex-wrap: wrap;
-
       gap: 10px;
-
       padding: 10px;
-
       justify-content: center;
-
     }
-
-
 
     .channel {
-
       width: 110px;
-
       height: 130px;
-
       background: #333;
-
       border: 2px solid transparent;
-
       border-radius: 8px;
-
       text-align: center;
-
       font-size: 12px;
-
       cursor: pointer;
-
       overflow: hidden;
-
       transition: transform 0.2s ease;
-
     }
-
-
 
     .channel:hover {
-
       transform: scale(1.03);
-
     }
-
-
 
     .channel img {
-
       width: 100%;
-
       height: 80px;
-
       object-fit: cover;
-
     }
-
-
 
     .channel.active {
-
       border-color: #1e90ff;
-
     }
-
-
 
     @media (max-width: 600px) {
-
       .channel {
-
         width: 100px;
-
         height: 120px;
-
       }
-
-
 
       body {
-
         padding-top: 30vh;
-
       }
-
-
 
       #player-container {
-
         height: 30vh;
-
       }
-
     }
-
   </style>
-
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
 </head>
-
 <body>
 
-
-
   <div id="player-container">
-
     <div id="video-player">
-
       <div style="color: #ccc; text-align: center; padding-top: 15%; pointer-events: none;">
-
         Select a channel to start watching
-
       </div>
-
     </div>
-
     <div id="info-box">Waiting for channel selection...</div>
-
   </div>
-
-
 
   <div id="search-box">
-
     <input type="text" id="search" placeholder="Search channels..." />
-
   </div>
-
-
 
   <div id="channel-list"></div>
 
-
-
   <script>
-
     const CHANNELS_JSON_URL = "http://mainconnect.co.ke:8080/channels.json";
 
-
-
     const playerContainer = document.getElementById("video-player");
-
     const infoBox = document.getElementById("info-box");
-
     const channelList = document.getElementById("channel-list");
-
     const searchInput = document.getElementById("search");
 
-
-
     let hls;
-
     let currentChannelDiv = null;
-
     let currentEPGURL = null;
-
     let currentChannelName = null;
-
     let epgInterval = null;
 
-
-
     function playHLS(url) {
-
       playerContainer.innerHTML = `<video id="video" controls autoplay></video>`;
-
       const video = document.getElementById("video");
 
-
-
       if (Hls.isSupported()) {
-
         if (hls) hls.destroy();
-
         hls = new Hls();
-
         hls.loadSource(url);
-
         hls.attachMedia(video);
-
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-
         video.src = url;
-
       }
-
     }
-
-
 
     function playTwitch(channelName) {
-
       playerContainer.innerHTML = `<iframe
-
         src="https://player.twitch.tv/?channel=${channelName}&parent=${window.location.hostname}"
-
         frameborder="0" allowfullscreen>
-
       </iframe>`;
-
     }
-
-
 
     function highlightNowPlaying(div) {
-
       if (currentChannelDiv) currentChannelDiv.classList.remove("active");
-
       div.classList.add("active");
-
       currentChannelDiv = div;
-
     }
-
-
 
     async function loadChannelEPG(epgUrl, channelName) {
-
       infoBox.innerHTML = `Loading EPG for <strong class="channel-name">${channelName}</strong>...`;
 
-
-
       try {
-
         const res = await fetch(epgUrl);
-
         const csv = await res.text();
-
         const lines = csv.trim().split("\n");
-
         const now = new Date();
-
         const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
-
         const currentTime = now.toTimeString().substring(0, 5);
 
-
-
         for (let i = 1; i < lines.length; i++) {
-
           const [day, start, end, title, next] = lines[i].split(',').map(v => v.trim());
-
           if (day === currentDay && start <= currentTime && end > currentTime) {
-
             infoBox.innerHTML = `
-
               <strong class="channel-name">${channelName}</strong> |
-
               <strong>Now:</strong> ${title} (${start} - ${end}) |
-
               <strong>Next:</strong> ${next}
-
             `;
-
             return;
-
           }
-
         }
 
-
-
         infoBox.innerHTML = `
-
           <strong class="channel-name">${channelName}</strong> |
-
           <em>No program info available at this time.</em>
-
         `;
-
       } catch (err) {
-
         console.error(err);
-
         infoBox.innerHTML = `
-
           <strong class="channel-name">${channelName}</strong> |
-
           <em>EPG unavailable</em>
-
         `;
-
       }
-
     }
 
-
-
     async function loadChannels() {
-
       try {
-
         const res = await fetch(CHANNELS_JSON_URL);
-
         const data = await res.json();
 
-
-
         data.forEach(group => {
-
           group.channels.forEach(channel => {
-
             const div = document.createElement("div");
-
             div.className = "channel";
-
             div.innerHTML = `
-
               <img src="${channel.thumbnail || 'http://mainconnect.co.ke:8080/pics/logo.png'}" loading="lazy" alt="${channel.name}">
-
               <div>${channel.name}</div>
-
             `;
 
-
-
             div.onclick = () => {
-
               if (channel.type === "hls") {
-
                 playHLS(channel.url);
-
               } else if (channel.type === "twitch") {
-
                 playTwitch(channel.channel);
-
               }
 
-
-
               highlightNowPlaying(div);
-
               currentEPGURL = channel.epg || null;
-
               currentChannelName = channel.name;
-
-
 
               if (epgInterval) clearInterval(epgInterval);
 
-
-
               if (currentEPGURL) {
-
                 loadChannelEPG(currentEPGURL, currentChannelName);
-
                 epgInterval = setInterval(() => {
-
                   loadChannelEPG(currentEPGURL, currentChannelName);
-
                 }, 60 * 60 * 1000); // refresh every hour
-
               } else {
-
                 infoBox.innerHTML = `
-
                   <strong class="channel-name">${channel.name}</strong> |
-
                   <em>No EPG linked</em>
-
                 `;
-
-              }
-
-            };
-
-
-
-            div.dataset.name = channel.name.toLowerCase();
-
-            channelList.appendChild(div);
-
-          });
-
-        });
-
-      } catch (err) {
-
-        console.error("Error loading channels:", err);
-
-        channelList.innerHTML = "<p style='color:red'>Failed to load channels.</p>";
-
-      }
-
-    }
-
-
-
-    searchInput.addEventListener("input", (e) => {
-
-      const value = e.target.value.toLowerCase();
-
-      document.querySelectorAll(".channel").forEach(div => {
-
-        div.style.display = div.dataset.name.includes(value) ? "block" : "none";
-
-      });
-
-    });
-
-
-
-    loadChannels();
-
-  </script>
-
-</body>
-
-</html>
-
-      }
-
-      body {
-        padding-top: 30vh;
-      }
-
-      #player-container {
-        height: 30vh;
-      }
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-</head>
-<body>
-
-  <div id="player-container">
-    <div id="video-player">
-        <div style="color: #ccc; text-align: center; padding-top: 15%; pointer-events: none;">Select a channel to start watching</div>
-    </div>
-    <div id="info-box">Waiting for channel selection...</div>
-  </div>
-
-  <div id="search-box">
-    <input type="text" id="search" placeholder="Search channels..." />
-  </div>
-
-  <div id="channel-list"></div>
-
-  <script>
-    const CHANNELS_JSON_URL = "https://hlsl.mainconnect.co.ke/channels.json";
-
-    const playerContainer = document.getElementById("video-player");
-    const infoBox = document.getElementById("info-box");
-    const channelList = document.getElementById("channel-list");
-    const searchInput = document.getElementById("search");
-
-    let hls;
-    let currentChannelDiv = null;
-
-    function playHLS(url) {
-      playerContainer.innerHTML = `<video id="video" controls autoplay></video>`;
-      const video = document.getElementById("video");
-
-      if (Hls.isSupported()) {
-        if (hls) hls.destroy();
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = url;
-      }
-    }
-
-    function playTwitch(channelName) {
-      playerContainer.innerHTML = `<iframe
-        src="https://player.twitch.tv/?channel=${channelName}&parent=${window.location.hostname}"
-        frameborder="0" allowfullscreen>
-      </iframe>`;
-    }
-
-    function highlightNowPlaying(div) {
-      if (currentChannelDiv) currentChannelDiv.classList.remove("active");
-      div.classList.add("active");
-      currentChannelDiv = div;
-    }
-
-    async function loadChannelEPG(epgUrl, channelName) {
-      infoBox.innerHTML = `Loading EPG for ${channelName}...`;
-      try {
-        const res = await fetch(epgUrl);
-        const csv = await res.text();
-        const lines = csv.trim().split("\n");
-        const now = new Date();
-        const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
-        const currentTime = now.toTimeString().substr(0, 5);
-
-        for (let i = 1; i < lines.length; i++) {
-          const [day, start, end, title, next] = lines[i].split(',').map(v => v.trim());
-          if (day === currentDay && start <= currentTime && end > currentTime) {
-            infoBox.innerHTML = `
-              <strong>Now Playing:</strong> ${channelName}<br>
-              <strong>Program:</strong> ${title}<br>
-              <strong>Next:</strong> ${next}<br>
-              <strong>Time:</strong> ${start} - ${end}
-            `;
-            return;
-          }
-        }
-
-        infoBox.innerHTML = `
-          <strong>Now Playing:</strong> ${channelName}<br>
-          <em>No program info available.</em>
-        `;
-      } catch (err) {
-        infoBox.innerHTML = `
-          <strong>Now Playing:</strong> ${channelName}<br>
-          <em>EPG unavailable</em>
-        `;
-      }
-    }
-
-    async function loadChannels() {
-      try {
-        const res = await fetch(CHANNELS_JSON_URL);
-        const data = await res.json();
-
-        data.forEach(group => {
-          group.channels.forEach(channel => {
-            const div = document.createElement("div");
-            div.className = "channel";
-            div.innerHTML = `
-              <img src="${channel.thumbnail}" loading="lazy" alt="${channel.name}">
-              <div>${channel.name}</div>
-            `;
-
-            div.onclick = () => {
-              if (channel.type === "hls") {
-                playHLS(channel.url);
-              } else if (channel.type === "twitch") {
-                playTwitch(channel.channel);
-              }
-
-              highlightNowPlaying(div);
-
-              if (channel.epg) {
-                loadChannelEPG(channel.epg, channel.name);
-              } else {
-                infoBox.innerHTML = `<strong>Now Playing:</strong> ${channel.name}<br><em>No EPG linked</em>`;
               }
             };
 
@@ -720,4 +283,3 @@
   </script>
 </body>
 </html>
-          
