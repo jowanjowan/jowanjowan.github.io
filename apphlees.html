@@ -12,6 +12,7 @@
       color: #fff;
       padding-top: 40vh;
     }
+
     #player-container {
       position: fixed;
       top: 0;
@@ -21,12 +22,14 @@
       background: #000;
       z-index: 999;
     }
+
     #video-player {
       position: relative;
       width: 100%;
       height: 90%;
       background: #000;
     }
+
     #video-player > * {
       position: absolute;
       top: 0;
@@ -36,6 +39,7 @@
       border: none;
       display: block;
     }
+
     #info-box {
       position: absolute;
       bottom: 0;
@@ -51,15 +55,18 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     #info-box strong.channel-name {
       font-weight: bold;
       font-style: italic;
       color: #1e90ff;
     }
+
     #search-box {
       padding: 10px;
       text-align: center;
     }
+
     #search {
       width: 90%;
       max-width: 400px;
@@ -68,6 +75,7 @@
       border: none;
       font-size: 14px;
     }
+
     #channel-list {
       display: flex;
       flex-wrap: wrap;
@@ -75,6 +83,7 @@
       padding: 10px;
       justify-content: center;
     }
+
     .channel {
       width: 110px;
       height: 130px;
@@ -87,36 +96,31 @@
       overflow: hidden;
       transition: transform 0.2s ease;
     }
+
     .channel:hover {
       transform: scale(1.03);
     }
+
     .channel img {
       width: 100%;
       height: 80px;
       object-fit: cover;
     }
+
     .channel.active {
       border-color: #1e90ff;
     }
-    .live-badge {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      background: red;
-      color: white;
-      font-size: 10px;
-      font-weight: bold;
-      padding: 2px 4px;
-      border-radius: 3px;
-    }
+
     @media (max-width: 600px) {
       .channel {
         width: 100px;
         height: 120px;
       }
+
       body {
         padding-top: 30vh;
       }
+
       #player-container {
         height: 30vh;
       }
@@ -125,6 +129,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
+
   <div id="player-container">
     <div id="video-player">
       <div style="color: #ccc; text-align: center; padding-top: 15%; pointer-events: none;">
@@ -133,22 +138,31 @@
     </div>
     <div id="info-box">Waiting for channel selection...</div>
   </div>
+
   <div id="search-box">
     <input type="text" id="search" placeholder="Search channels..." />
   </div>
+
   <div id="channel-list"></div>
 
   <script>
     const CHANNELS_JSON_URL = "https://hlsl.mainconnect.co.ke/channels.json";
+
     const playerContainer = document.getElementById("video-player");
     const infoBox = document.getElementById("info-box");
     const channelList = document.getElementById("channel-list");
     const searchInput = document.getElementById("search");
-    let hls, currentChannelDiv, currentEPGURL, currentChannelName, epgInterval;
+
+    let hls;
+    let currentChannelDiv = null;
+    let currentEPGURL = null;
+    let currentChannelName = null;
+    let epgInterval = null;
 
     function playHLS(url) {
       playerContainer.innerHTML = `<video id="video" controls autoplay></video>`;
       const video = document.getElementById("video");
+
       if (Hls.isSupported()) {
         if (hls) hls.destroy();
         hls = new Hls();
@@ -162,7 +176,8 @@
     function playTwitch(channelName) {
       playerContainer.innerHTML = `<iframe
         src="https://player.twitch.tv/?channel=${channelName}&parent=${window.location.hostname}"
-        frameborder="0" allowfullscreen></iframe>`;
+        frameborder="0" allowfullscreen>
+      </iframe>`;
     }
 
     function playYouTube(videoId) {
@@ -171,7 +186,8 @@
         src="${embedUrl}"
         frameborder="0"
         allow="autoplay; encrypted-media"
-        allowfullscreen></iframe>`;
+        allowfullscreen
+      ></iframe>`;
     }
 
     function highlightNowPlaying(div) {
@@ -182,62 +198,57 @@
 
     async function loadChannelEPG(epgUrl, channelName) {
       infoBox.innerHTML = `Loading EPG for <strong class="channel-name">${channelName}</strong>...`;
+
       try {
-        const res = await fetch(epgUrl), csv = await res.text(), lines = csv.trim().split("\n");
-        const now = new Date(), currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }), currentTime = now.toTimeString().substring(0, 5);
+        const res = await fetch(epgUrl);
+        const csv = await res.text();
+        const lines = csv.trim().split("\n");
+        const now = new Date();
+        const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+        const currentTime = now.toTimeString().substring(0, 5);
 
         for (let i = 1; i < lines.length; i++) {
           const [day, start, end, title, next] = lines[i].split(',').map(v => v.trim());
           if (day === currentDay && start <= currentTime && end > currentTime) {
-            infoBox.innerHTML = `<strong class="channel-name">${channelName}</strong> | <strong>Now:</strong> ${title} (${start} - ${end}) | <strong>Next:</strong> ${next}`;
+            infoBox.innerHTML = `
+              <strong class="channel-name">${channelName}</strong> |
+              <strong>Now:</strong> ${title} (${start} - ${end}) |
+              <strong>Next:</strong> ${next}
+            `;
             return;
           }
         }
 
-        infoBox.innerHTML = `<strong class="channel-name">${channelName}</strong> | <em>No program info available at this time.</em>`;
+        infoBox.innerHTML = `
+          <strong class="channel-name">${channelName}</strong> |
+          <em>No program info available at this time.</em>
+        `;
       } catch (err) {
         console.error(err);
-        infoBox.innerHTML = `<strong class="channel-name">${channelName}</strong> | <em>EPG unavailable</em>`;
+        infoBox.innerHTML = `
+          <strong class="channel-name">${channelName}</strong> |
+          <em>EPG unavailable</em>
+        `;
       }
     }
 
     async function fetchYouTubeTitleNoEmbed(videoId) {
       const url = `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`;
       try {
-        const res = await fetch(url), data = await res.json();
+        const res = await fetch(url);
+        const data = await res.json();
         return data.title || null;
-      } catch {
+      } catch (err) {
+        console.error("NoEmbed failed:", err);
         return null;
       }
-    }
-
-    async function checkYouTubeLiveStatus(videoId) {
-      const url = `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`;
-      try {
-        const res = await fetch(url), data = await res.json(), title = data.title?.toLowerCase();
-        return title && (title.includes("live") || title.includes("🔴"));
-      } catch {
-        return false;
-      }
-    }
-
-    async function checkHLSStream(url) {
-      try { const res = await fetch(url, { method: 'HEAD' }); return res.ok; }
-      catch { return false; }
-    }
-
-    function markAsLive(div) {
-      const badge = document.createElement("div");
-      badge.textContent = "LIVE";
-      badge.className = "live-badge";
-      div.style.position = "relative";
-      div.appendChild(badge);
     }
 
     async function renderChannel(channel) {
       const div = document.createElement("div");
       div.className = "channel";
 
+      // Determine thumbnail
       let thumbnail = channel.thumbnail;
       if (!thumbnail && channel.type === "youtube") {
         thumbnail = `https://img.youtube.com/vi/${channel.channel}/0.jpg`;
@@ -245,6 +256,7 @@
         thumbnail = 'https://hlsl.mainconnect.co.ke/pics/logo.png';
       }
 
+      // Use noembed first, fallback to name or default
       let channelName = null;
       if (channel.type === "youtube") {
         channelName = await fetchYouTubeTitleNoEmbed(channel.channel);
@@ -252,60 +264,55 @@
       channelName = channelName || channel.name || "YouTube Channel";
 
       div.innerHTML = `
-        <img src="${thumbnail}" onerror="this.onerror=null; this.src='https://hlsl.mainconnect.co.ke/pics/logo.png';" loading="lazy" alt="${channelName}">
+        <img src="${thumbnail}" 
+             onerror="this.onerror=null; this.src='https://hlsl.mainconnect.co.ke/pics/logo.png';" 
+             loading="lazy" 
+             alt="${channelName}">
         <div>${channelName}</div>
       `;
 
       div.onclick = () => {
-        if (channel.type === "hls") playHLS(channel.url);
-        else if (channel.type === "twitch") playTwitch(channel.channel);
-        else if (channel.type === "youtube") playYouTube(channel.channel);
+        if (channel.type === "hls") {
+          playHLS(channel.url);
+        } else if (channel.type === "twitch") {
+          playTwitch(channel.channel);
+        } else if (channel.type === "youtube") {
+          playYouTube(channel.channel);
+        }
 
         highlightNowPlaying(div);
         currentEPGURL = channel.epg || null;
         currentChannelName = channelName;
+
         if (epgInterval) clearInterval(epgInterval);
 
         if (currentEPGURL) {
           loadChannelEPG(currentEPGURL, currentChannelName);
-          epgInterval = setInterval(() => loadChannelEPG(currentEPGURL, currentChannelName), 3600000);
+          epgInterval = setInterval(() => {
+            loadChannelEPG(currentEPGURL, currentChannelName);
+          }, 60 * 60 * 1000);
         } else {
-          infoBox.innerHTML = `<strong class="channel-name">${currentChannelName}</strong> | <em>No EPG linked</em>`;
+          infoBox.innerHTML = `
+            <strong class="channel-name">${currentChannelName}</strong> |
+            <em>No EPG linked</em>
+          `;
         }
       };
 
       div.dataset.name = channelName.toLowerCase();
       channelList.appendChild(div);
-      return { div, channel, channelName };
-    }
-
-    async function checkLiveStatus(renderedChannels) {
-      for (const { div, channel } of renderedChannels) {
-        if (channel.type === "youtube") {
-          const isLive = await checkYouTubeLiveStatus(channel.channel);
-          if (!isLive) div.style.display = "none";
-          else markAsLive(div);
-        }
-        else if (channel.type === "hls") {
-          const isLive = await checkHLSStream(channel.url);
-          if (!isLive) div.style.display = "none";
-          else markAsLive(div);
-        }
-        // Twitch always displayed by default
-      }
     }
 
     async function loadChannels() {
       try {
-        const res = await fetch(CHANNELS_JSON_URL), data = await res.json();
-        const rendered = [];
+        const res = await fetch(CHANNELS_JSON_URL);
+        const data = await res.json();
+
         for (const group of data) {
           for (const channel of group.channels) {
-            const result = await renderChannel(channel);
-            if (result) rendered.push(result);
+            await renderChannel(channel);
           }
         }
-        checkLiveStatus(rendered);
       } catch (err) {
         console.error("Error loading channels:", err);
         channelList.innerHTML = "<p style='color:red'>Failed to load channels.</p>";
